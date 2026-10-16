@@ -22,7 +22,7 @@ namespace oc = xmz::ios::objc;
     self.title = @"Jailbreak Check";
     self.view.backgroundColor = oc::color::system_background();
 
-    self.verdict = oc::make::label(@"点击“开始检测”");
+    self.verdict = oc::make::label(@"点击“开始检测”|Click `Start Testing`");
     self.verdict.font = oc::font::bold_system(24);
 
     self.detail = [[UITextView alloc] init];
@@ -30,7 +30,7 @@ namespace oc = xmz::ios::objc;
     self.detail.font = oc::font::monospaced(12);
     self.detail.translatesAutoresizingMaskIntoConstraints = NO;
 
-    UIButton *btn = oc::make::button(@"开始检测");
+    UIButton *btn = oc::make::button(@"开始检测|Start testing");
     [btn addTarget:self action:@selector(runCheck)
           forControlEvents:UIControlEventTouchUpInside];
 
@@ -60,21 +60,21 @@ namespace oc = xmz::ios::objc;
 
     switch (level) {
         case JBThreatLevelClean:
-            self.verdict.text = @"未检测到越狱";
+            self.verdict.text = @"未检测到越狱\nNo jailbreak detected";
             self.verdict.textColor = oc::color::system_green();
             break;
         case JBThreatLevelSuspicious:
-            self.verdict.text = @"疑似越狱环境";
+            self.verdict.text = @"疑似越狱环境\nSuspected jailbreak environment";
             self.verdict.textColor = oc::color::yellow();
             break;
         case JBThreatLevelJailbroken:
-            self.verdict.text = @"已越狱";
+            self.verdict.text = @"已越狱\nEscaped from prison";
             self.verdict.textColor = oc::color::system_red();
             break;
     }
 
     NSMutableString *s = [NSMutableString string];
-    [s appendFormat:@"命中 %lu 项：\n\n", (unsigned long)findings.count];
+    [s appendFormat:@"命中(Hit) %lu 项(item): \n\n", (unsigned long)findings.count];
     for (JBFinding *f in findings) {
         [s appendFormat:@"[%@] %@\n", f.category, f.detail];
     }

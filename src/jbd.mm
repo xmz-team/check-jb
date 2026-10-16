@@ -77,32 +77,52 @@
 
 #pragma mark - jb_path
 - (NSArray<NSString *> *)mergePathsWithJBVariant:(NSArray<NSString *> *)raw {
-    if (![raw isKindOfClass:[NSArray class]]) {
-        return @[];
-    }
-
-    NSMutableArray<NSString *> *merged = [NSMutableArray arrayWithCapacity:raw.count * 2];
+    if (![raw isKindOfClass:[NSArray class]]) return @[];
+    NSMutableArray<NSString *> *merged = [NSMutableArray arrayWithCapacity:raw.count * 4];
     NSMutableSet<NSString *> *seen = [NSMutableSet set];
+    /* /var/containers/Bundle/Application/.jbroot-*, the absolute path of roothide‘s directory on the file system */
+    NSMutableArray<NSString *> *roothide_dir = [NSMutableArray array];
+    NSString *bundleApp = @"/var/containers/Bundle/Application";
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSArray<NSString *> *entries = [fm contentsOfDirectoryAtPath:bundleApp error:nil];
+    for (NSString *entry in entries) if ([entry hasPrefix:@".jbroot-"]) [roothide_dir addObject:[bundleApp stringByAppendingPathComponent:entry]];
+    // /private/preboot/*/dopamine-*/procursus, the absolute path of rootless(dopamine) on the file system
+    NSMutableArray<NSString *> *dopamine_dir = [NSMutableArray array];
+    NSArray<NSString *> *prebootExpanded = GlobExpand(@"/private/preboot/*/dopamine-*/procursus");
+    for (NSString *p in prebootExpanded) if (DirExists(p)) [dopamine_dir addObject:p];
 
     for (NSString *p in raw) {
         if (![p isKindOfClass:[NSString class]] || p.length == 0) continue;
-
+        // rootful
         if (![seen containsObject:p]) {
             [merged addObject:p];
             [seen addObject:p];
         }
-
-        if ([p hasPrefix:@"/var/jb"]) {
-            continue;
+        // rootless
+        if (![p hasPrefix:@"/var/jb"]) {
+            NSString *v = [@"/var/jb" stringByAppendingString:p];
+            if (![seen containsObject:v]) {
+                [merged addObject:v];
+                [seen addObject:v];
+            }
         }
-
-        NSString *v = [@"/var/jb" stringByAppendingString:p];
-        if (![seen containsObject:v]) {
-            [merged addObject:v];
-            [seen addObject:v];
+        // roothide
+        for (NSString *root in roothide_dir) {
+            NSString *v = [root stringByAppendingString:p];
+            if (![seen containsObject:v]) {
+                [merged addObject:v];
+                [seen addObject:v];
+            }
+        }
+        // rootless(dopamine), because Dopamine's hidden jailbreak only hides the /var/jb path, so it is queried through the absolute path
+        for (NSString *root in dopamine_dir) {
+            NSString *v = [root stringByAppendingString:p];
+            if (![seen containsObject:v]) {
+                [merged addObject:v];
+                [seen addObject:v];
+            }
         }
     }
-
     return merged;
 }
 
