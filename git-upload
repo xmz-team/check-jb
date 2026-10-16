@@ -3,6 +3,8 @@
 source ".git-upload/instructions.ini"
 export text="$instructions"
 
+git submodule update --remote libs/libxmz
+
 git add .
 git diff --staged --quiet || git commit -m "updated by the update script $text $(date +'%Y-%m-%d %H:%M')"
 

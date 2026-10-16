@@ -13,7 +13,7 @@ fi
 
 c++ -ObjC++ -fobjc-arc \
   -isysroot ${SYSROOT} \
-  -miphoneos-version-min=14.0 \
+  -Ilibs \
   -Werror \
   -I/var/jb/usr/include \
   -framework Foundation -framework UIKit \
