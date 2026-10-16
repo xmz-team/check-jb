@@ -1,0 +1,36 @@
+#!/bin/bash -x
+set -euo pipefail
+time="$(date '+%Y%m%d-%H%M%S')"
+
+if [ -n ${THEOS_SDK_ROOT} ]; then
+    SYSROOT=${THEOS_SDK_ROOT}
+elif [ -n ${SDKROOT} ]; then
+    SYSROOT=${SDKROOT}
+else
+    echo "Error: need SDKROOT env" >&2
+    exit 1
+fi
+
+c++ -ObjC++ -fobjc-arc \
+  -isysroot ${SYSROOT} \
+  -miphoneos-version-min=14.0 \
+  -Werror \
+  -I/var/jb/usr/include \
+  -framework Foundation -framework UIKit \
+  src/*.mm -o "Check-JB"
+
+ldid -Sens.xml -Hsha1 -Hsha256 -M "Check-JB"
+
+rm -f "p/Payload/Check-JB.app/Check-JB"
+mv "Check-JB" "p/Payload/Check-JB.app/"
+
+rm -f "p/Payload/Check-JB.app/Info.plist"
+cp "Info.plist" "p/Payload/Check-JB.app/"
+
+mkdir -p packages/${time}
+if ls *.ipa >/dev/null 2>&1; then
+    mv *.ipa packages/${time}/
+fi
+
+cd p && zip -r -9 p.ipa Payload
+mv p.ipa .. && cd ..
