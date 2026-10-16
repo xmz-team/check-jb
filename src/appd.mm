@@ -22,7 +22,7 @@ namespace oc = xmz::ios::objc;
     self.title = @"Jailbreak Check";
     self.view.backgroundColor = oc::color::system_background();
 
-    self.verdict = oc::make::label(@"点击“开始检测”|Click `Start Testing`");
+    self.verdict = oc::make::label(@"点击“开始检测”\nClick `Start Testing`");
     self.verdict.font = oc::font::bold_system(24);
 
     self.detail = [[UITextView alloc] init];
@@ -68,7 +68,7 @@ namespace oc = xmz::ios::objc;
             self.verdict.textColor = oc::color::yellow();
             break;
         case JBThreatLevelJailbroken:
-            self.verdict.text = @"已越狱\nEscaped from prison";
+            self.verdict.text = @"已越狱\njailbroken";
             self.verdict.textColor = oc::color::system_red();
             break;
     }
